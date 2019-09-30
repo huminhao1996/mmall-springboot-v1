@@ -24,6 +24,21 @@ public class JedisUtil {
     @Autowired
     private JedisPool jedisPool;
 
+    public String get(String key) {
+        Jedis jedis = null;
+        String result = null;
+        try {
+            jedis = jedisPool.getResource();
+            result = jedis.get(key);
+        } catch (Exception e) {
+            log.error("get key:{} error", key, e);
+            jedisPool.returnBrokenResource(jedis);
+            return result;
+        }
+        jedisPool.returnResource(jedis);
+        return result;
+    }
+
     /**
      * 通过key获取储存在redis中的value
      * 并释放连接
@@ -71,6 +86,22 @@ public class JedisUtil {
             returnResource(jedisPool, jedis);
         }
         return value;
+    }
+
+    public String set(String key, String value) {
+        Jedis jedis = null;
+        String result = null;
+
+        try {
+            jedis = jedisPool.getResource();
+            result = jedis.set(key, value);
+        } catch (Exception e) {
+            log.error("set key:{} value:{} error", key, value, e);
+            jedisPool.returnBrokenResource(jedis);
+            return result;
+        }
+        jedisPool.returnResource(jedis);
+        return result;
     }
 
     /**
@@ -244,6 +275,28 @@ public class JedisUtil {
             returnResource(jedisPool, jedis);
         }
         return null;
+    }
+
+    /**
+     * 设置key的有效期，单位是秒
+     *
+     * @param key
+     * @param exTime
+     * @return
+     */
+    public Long expire(String key, int exTime) {
+        Jedis jedis = null;
+        Long result = null;
+        try {
+            jedis = jedisPool.getResource();
+            result = jedis.expire(key, exTime);
+        } catch (Exception e) {
+            log.error("expire key:{} error", key, e);
+            jedisPool.returnBrokenResource(jedis);
+            return result;
+        }
+        jedisPool.returnResource(jedis);
+        return result;
     }
 
     /**

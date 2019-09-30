@@ -16,7 +16,7 @@ import javax.servlet.http.HttpServletResponse;
 @Slf4j
 public class CookieUtil {
 
-    private final static String COOKIE_DOMAIN = ".imooc01.com";
+    private final static String COOKIE_DOMAIN = "imooc01.com";
     private final static String COOKIE_NAME = "token";
 
     /** 
@@ -39,6 +39,13 @@ public class CookieUtil {
         }
         return null;
     }
+
+    //X:domain=".happymmall.com"
+    //a:A.happymmall.com            cookie:domain=A.happymmall.com;path="/"
+    //b:B.happymmall.com            cookie:domain=B.happymmall.com;path="/"
+    //c:A.happymmall.com/test/cc    cookie:domain=A.happymmall.com;path="/test/cc"
+    //d:A.happymmall.com/test/dd    cookie:domain=A.happymmall.com;path="/test/dd"
+    //e:A.happymmall.com/test       cookie:domain=A.happymmall.com;path="/test"
 
     /** 
      * 写cookie
