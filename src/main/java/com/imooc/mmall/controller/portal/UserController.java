@@ -6,6 +6,7 @@ import com.imooc.mmall.common.ResponseCode;
 import com.imooc.mmall.common.ServerResponse;
 import com.imooc.mmall.pojo.User;
 import com.imooc.mmall.service.IUserService;
+import com.imooc.mmall.util.CookieUtil;
 import com.imooc.mmall.util.JedisUtil;
 import com.imooc.mmall.util.JsonUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 /**
@@ -34,17 +37,21 @@ public class UserController {
      * 用户登录
      *
      * @param username
-     * @param passwords
+     * @param password
      * @param session
      * @return
      */
     @RequestMapping(value = "login.do", method = RequestMethod.POST)
     @ResponseBody
-    public ServerResponse<User> login(String username, String password, HttpSession session) {
+    public ServerResponse<User> login(String username,
+                                      String password,
+                                      HttpServletRequest request,
+                                      HttpServletResponse httpServletResponse,
+                                      HttpSession session) {
         ServerResponse<User> response = iUserService.login(username, password);
         if (response.isSuccess()) {
 //            session.setAttribute(Const.CURRENT_USER,response.getData());
-
+            CookieUtil.writeLoginToken(httpServletResponse, session.getId());
             jedisUtil.setex(session.getId(), Const.RedisCacheExtime.REDIS_SESSION_EXTIME, JsonUtil.obj2String(response.getData()));
         }
         return response;
